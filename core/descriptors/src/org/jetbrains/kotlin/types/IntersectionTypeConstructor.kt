@@ -25,74 +25,41 @@ import org.jetbrains.kotlin.resolve.scopes.TypeIntersectionScope
 import java.util.*
 
 class IntersectionTypeConstructor(typesToIntersect: Collection<KotlinType>) : TypeConstructor {
-    private val intersectedTypes: Set<KotlinType>?
-    private val hashCode: Int
-
     init {
         assert(!typesToIntersect.isEmpty()) { "Attempt to create an empty intersection" }
-
-        this.intersectedTypes = LinkedHashSet(typesToIntersect)
-        this.hashCode = intersectedTypes.hashCode()
     }
 
-    override fun getParameters(): List<TypeParameterDescriptor> {
-        return emptyList()
+    private val intersectedTypes = LinkedHashSet(typesToIntersect)
+    private val hashCode = intersectedTypes.hashCode()
+
+    override fun getParameters(): List<TypeParameterDescriptor> = emptyList()
+
+    override fun getSupertypes(): Collection<KotlinType> = intersectedTypes
+
+    fun createScopeForKotlinType(): MemberScope =
+        TypeIntersectionScope.create("member scope for intersection type $this", intersectedTypes)
+
+    override fun isFinal(): Boolean = false
+
+    override fun isDenotable(): Boolean = false
+
+    override fun getDeclarationDescriptor(): ClassifierDescriptor? = null
+
+    override fun getBuiltIns(): KotlinBuiltIns =
+        intersectedTypes.iterator().next().constructor.builtIns
+
+    override fun toString(): String =
+        makeDebugNameForIntersectionType(intersectedTypes)
+
+    private fun makeDebugNameForIntersectionType(resultingTypes: Iterable<KotlinType>): String =
+        resultingTypes.joinToString(separator = " & ", prefix = "{", postfix = "}")
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is IntersectionTypeConstructor) return false
+
+        return intersectedTypes == other.intersectedTypes
     }
 
-    override fun getSupertypes(): Collection<KotlinType> {
-        return intersectedTypes
-    }
-
-    fun createScopeForKotlinType(): MemberScope {
-        return TypeIntersectionScope.create("member scope for intersection type $this", intersectedTypes!!)
-    }
-
-    override fun isFinal(): Boolean {
-        return false
-    }
-
-    override fun isDenotable(): Boolean {
-        return false
-    }
-
-    override fun getDeclarationDescriptor(): ClassifierDescriptor? {
-        return null
-    }
-
-    override fun getBuiltIns(): KotlinBuiltIns {
-        return intersectedTypes!!.iterator().next().constructor.builtIns
-    }
-
-    override fun toString(): String {
-        return makeDebugNameForIntersectionType(intersectedTypes!!)
-    }
-
-    private fun makeDebugNameForIntersectionType(resultingTypes: Iterable<KotlinType>): String {
-        val debugName = StringBuilder("{")
-        val iterator = resultingTypes.iterator()
-        while (iterator.hasNext()) {
-            val type = iterator.next()
-
-            debugName.append(type.toString())
-            if (iterator.hasNext()) {
-                debugName.append(" & ")
-            }
-        }
-        debugName.append("}")
-        return debugName.toString()
-    }
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-
-        val that = o as IntersectionTypeConstructor?
-
-        return if (if (intersectedTypes != null) intersectedTypes != that!!.intersectedTypes else that!!.intersectedTypes != null) false else true
-
-    }
-
-    override fun hashCode(): Int {
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 }

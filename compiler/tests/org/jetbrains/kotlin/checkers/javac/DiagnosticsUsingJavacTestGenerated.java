@@ -13881,6 +13881,11 @@ public class DiagnosticsUsingJavacTestGenerated extends AbstractDiagnosticsUsing
                 runTest("compiler/testData/diagnostics/tests/numbers/intValuesOutOfRange.kt");
             }
 
+            @TestMetadata("intersectionAndUnionOfNumberTypes.kt")
+            public void testIntersectionAndUnionOfNumberTypes() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/numbers/intersectionAndUnionOfNumberTypes.kt");
+            }
+
             @TestMetadata("numbersInSimpleConstraints.kt")
             public void testNumbersInSimpleConstraints() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/numbers/numbersInSimpleConstraints.kt");

@@ -19,6 +19,11 @@ fun check(actual: String?, expected: String) {
     if (actual != expected) error("Fail, expected: $expected, actual: $actual")
 }
 
+inline fun <reified T> reifiedCheck(asString: String, simpleName: String) {
+    check(T::class, asString)
+    check(T::class.simpleName, simpleName)
+}
+
 fun box(): String {
     val i = IcInt(0)
     val l = IcLong(0)
@@ -36,6 +41,12 @@ fun box(): String {
     check(a::class.simpleName, "IcAny")
     check(o::class.simpleName, "IcOverIc")
     check(1u::class.simpleName, "UInt")
+
+    reifiedCheck<IcInt>("class root.IcInt", "IcInt")
+    reifiedCheck<IcLong>("class root.IcLong", "IcLong")
+    reifiedCheck<IcAny>("class root.IcAny", "IcAny")
+    reifiedCheck<IcOverIc>("class root.IcOverIc", "IcOverIc")
+    reifiedCheck<UInt>("class kotlin.UInt", "UInt")
 
     val arrI = arrayOf(i)
     check(arrI[0]::class, "class root.IcInt")
